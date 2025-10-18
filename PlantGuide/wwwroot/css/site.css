@@ -1,0 +1,47 @@
+:root {
+    --accent: #8a56d0; /* сиреневый */
+    --muted: #6c757d;
+}
+
+body {
+    background: #fbfbfe;
+    color: #222;
+}
+
+a, .btn-primary {
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 2px 6px rgba(138,86,208,0.12);
+}
+
+.btn-outline-primary {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.plant-card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+}

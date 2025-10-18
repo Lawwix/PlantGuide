@@ -1,0 +1,23 @@
+﻿@model PlantGuide.Models.Plant
+
+<div class="container py-4">
+    <div class="card mb-3">
+        <div class="row g-0">
+            <div class="col-md-5">
+                <img src="~/@Model.PhotoPath" class="img-fluid rounded-start" 
+                style="height:100%; object-fit:cover; width:100%;" alt="@Model.Name" />
+            </div>
+            <div class="col-md-7">
+                <div class="card-body">
+                    <h3 class="card-title">@Model.Name</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">@Model.ScientificName</h6>
+                    <p class="card-text">@Model.Description</p>
+                    <h6>Инструкции по уходу</h6>
+                    <p class="card-text">@Model.CareInstructions</p>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редактировать</a>
+                    <a asp-action="Index" class="btn btn-secondary ms-2">Назад</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

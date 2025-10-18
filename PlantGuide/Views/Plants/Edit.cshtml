@@ -1,0 +1,39 @@
+﻿@model PlantGuide.Models.Plant
+@{
+    ViewData["Title"] = "Редактировать растение";
+}
+<div class="container py-3">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="ScientificName" class="form-label"></label>
+            <input asp-for="ScientificName" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+        </div>
+        <div class="mb-3">
+            <label asp-for="CareInstructions" class="form-label"></label>
+            <textarea asp-for="CareInstructions" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Текущее фото</label><br />
+            <img src="~/@Model.PhotoPath" alt="Фото" style="max-height:180px; object-fit:cover; width:220px;" class="rounded mb-2" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Загрузить новое фото</label>
+            <input type="file" name="photo" accept="image/*" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Отмена</a>
+    </form>
+</div>

@@ -1,0 +1,63 @@
+﻿@model IEnumerable<PlantGuide.Models.Plant>
+@{
+    ViewData["Title"] = "Справочник растений";
+    var search = (string)ViewData["Search"];
+    var careFilter = (string)ViewData["CareFilter"];
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Справочник растений</h1>
+        <a class="btn btn-primary" href="@Url.Action("Create")">Добавить растение</a>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-5">
+            <input name="search" value="@search" class="form-control" placeholder="Поиск по названию, научному названию или описанию" />
+        </div>
+        <div class="col-md-4">
+            <input name="careFilter" value="@careFilter" class="form-control" placeholder="Фильтр по инструкции 
+                                                                              (напр., 'редкий полив', 'яркий свет')" />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-outline-primary me-2">Применить</button>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Сброс</a>
+        </div>
+    </form>
+
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+        @foreach (var plant in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm plant-card">
+                    <div class="row g-0">
+                        <div class="col-md-5 d-flex align-items-center justify-content-center p-2">
+                            <img src="~/@plant.PhotoPath" alt="@plant.Name" class="img-fluid rounded" 
+                            style="max-height:200px; object-fit:cover; width:100%;" />
+                        </div>
+                        <div class="col-md-7">
+                            <div class="card-body">
+                                <h5 class="card-title">@plant.Name</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">@plant.ScientificName</h6>
+                                <p class="card-text small text-truncate" title="@plant.Description">@plant.Description</p>
+                                <p class="card-text"><small class="text-muted">Уход: @plant.CareInstructions</small></p>
+                                <div class="mt-2">
+                                    <a class="btn btn-sm btn-outline-secondary me-1" href="@Url.Action("Details", 
+                                       new { id = plant.Id })">Открыть</a>
+                                    <a class="btn btn-sm btn-outline-primary me-1" href="@Url.Action("Edit", 
+                                       new { id = plant.Id })">Редактировать</a>
+                                    <a class="btn btn-sm btn-outline-danger" href="@Url.Action("Delete", 
+                                       new { id = plant.Id })">Удалить</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+    
+
+
+

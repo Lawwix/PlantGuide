@@ -1,0 +1,24 @@
+﻿@model PlantGuide.Models.Plant
+
+<div class="container py-4">
+    <h3>Удалить растение?</h3>
+    <div class="card mb-3">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="~/@Model.PhotoPath" class="img-fluid" 
+                style="max-height:200px; object-fit:cover; width:100%;" alt="@Model.Name" />
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5>@Model.Name</h5>
+                    <p>@Model.Description</p>
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                        <a asp-action="Index" class="btn btn-secondary ms-2">Отмена</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
