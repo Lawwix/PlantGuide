@@ -2,32 +2,25 @@
 @{
     ViewData["Title"] = "Добавить растение";
 }
-<div class="container py-3">
-    <h2>@ViewData["Title"]</h2>
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <label asp-for="ScientificName" class="form-label"></label>
-            <input asp-for="ScientificName" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label asp-for="Description" class="form-label"></label>
-            <textarea asp-for="Description" class="form-control"></textarea>
-        </div>
-        <div class="mb-3">
-            <label asp-for="CareInstructions" class="form-label"></label>
-            <textarea asp-for="CareInstructions" class="form-control"></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Фото растения (jpg, png)</label>
-            <input type="file" name="photo" accept="image/*" class="form-control" />
-            <div class="form-text">Если файл не загружен — будет использовано default.jpg</div>
-        </div>
-        <button type="submit" class="btn btn-primary">Сохранить</button>
-        <a asp-action="Index" class="btn btn-secondary ms-2">Отмена</a>
-    </form>
-</div>
+
+<h2>Добавить растение</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    
+    <input asp-for="Name" class="form-control" placeholder="Название" />
+    <input asp-for="ScientificName" class="form-control" placeholder="Научное название" />
+
+    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Краткое описание"></textarea>
+    <textarea asp-for="CareInstructions" class="form-control" rows="4" placeholder="Инструкции по уходу"></textarea>
+
+    <label>Фото растения (jpeg, png)</label>
+
+    <div class="file-input">
+        <input type="file" name="photo" accept="image/*" class="form-control" />
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-small btn-open">Сохранить</button>
+        <a class="btn-ghost" href="@Url.Action("Index")">Отмена</a>
+    </div>
+</form>

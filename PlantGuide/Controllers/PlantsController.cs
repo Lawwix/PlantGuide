@@ -18,27 +18,38 @@ namespace PlantGuide.Controllers
         }
 
         // GET: Plants
-        // support search and simple filter by care keyword
         public async Task<IActionResult> Index(string search, string careFilter)
         {
+            // Нормализуем входные параметры
+            search = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
+            careFilter = string.IsNullOrWhiteSpace(careFilter) ? null : careFilter.Trim();
+
+            // Берём IQueryable — запрос будет выполнен в БД после всех Where
             var query = _context.Plants.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(search))
+            // Поиск: проверяем несколько полей
+            if (!string.IsNullOrEmpty(search))
             {
-                search = search.Trim().ToLower();
+                // Используем EF.Functions.Like для корректной работы в SQLite/SQL
+                var pattern = $"%{search}%";
                 query = query.Where(p =>
-                    p.Name.ToLower().Contains(search) ||
-                    (p.ScientificName ?? "").ToLower().Contains(search) ||
-                    (p.Description ?? "").ToLower().Contains(search));
+                    EF.Functions.Like(p.Name ?? "", pattern) ||
+                    EF.Functions.Like(p.ScientificName ?? "", pattern) ||
+                    EF.Functions.Like(p.Description ?? "", pattern));
             }
 
-            if (!string.IsNullOrWhiteSpace(careFilter))
+            // Фильтрация по инструкциям по уходу (ищем подстроку)
+            if (!string.IsNullOrEmpty(careFilter))
             {
-                var f = careFilter.Trim().ToLower();
-                query = query.Where(p => (p.CareInstructions ?? "").ToLower().Contains(f));
+                var pattern = $"%{careFilter}%";
+                query = query.Where(p => EF.Functions.Like(p.CareInstructions ?? "", pattern));
             }
 
-            var list = await query.OrderBy(p => p.Name).ToListAsync();
+            // Сортируем и выполняем запрос
+            var list = await query
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
             ViewData["Search"] = search;
             ViewData["CareFilter"] = careFilter;
             return View(list);
@@ -56,35 +67,38 @@ namespace PlantGuide.Controllers
         // GET: Plants/Create
         public IActionResult Create() => View();
 
-        // POST: Plants/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Plant plant, IFormFile? photo)
         {
-            // Сначала присваиваем путь к фото (если есть файл или дефолт)
+            // сохраняем фото (если есть) в wwwroot/images и возвращаем путь вида "/images/xxx.jpg"
             if (photo != null && photo.Length > 0)
             {
                 plant.PhotoPath = await SavePhotoFile(photo);
             }
             else
             {
-                plant.PhotoPath = "/images/default.jpg"; // убедись, что файл существует
+                plant.PhotoPath = "/images/default.jpg";
             }
 
-            // Удаляем старую валидацию поля PhotoPath (если был [Required])
+            // если в модели PhotoPath помечено [Required], снимем старую ошибку валидации
             ModelState.Remove(nameof(Plant.PhotoPath));
-            // Перепроверим модель (необязательно)
             TryValidateModel(plant);
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(plant);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // для отладки можно вывести ModelState ошибки в Output
+                var errors = ModelState.Where(kv => kv.Value.Errors.Any())
+                    .Select(kv => new { kv.Key, Errors = kv.Value.Errors.Select(e => e.ErrorMessage) });
+                foreach (var e in errors) Console.WriteLine($"Model error: {e.Key} => {string.Join(",", e.Errors)}");
+
+                return View(plant);
             }
 
-            // если ModelState невалиден — вернёмся в форму и покажем ошибки
-            return View(plant);
+            _context.Add(plant); _context.Add(plant); 
+            await _context.SaveChangesAsync(); 
+            Console.WriteLine("Saved plant id=" + plant.Id); 
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Plants/Edit/5
@@ -103,31 +117,44 @@ namespace PlantGuide.Controllers
         {
             if (id != plant.Id) return NotFound();
 
+            // Загружаем текущую запись из БД
+            var existing = await _context.Plants.FindAsync(id);
+            if (existing == null) return NotFound();
+
+            // Обновляем поля (которые редактирует пользователь)
+            existing.Name = plant.Name;
+            existing.ScientificName = plant.ScientificName;
+            existing.Description = plant.Description;
+            existing.CareInstructions = plant.CareInstructions;
+
+            // Если пользователь загрузил новое фото — сохраняем и подставляем путь,
+            // иначе оставляем существующий existing.PhotoPath
             if (photo != null && photo.Length > 0)
             {
-                plant.PhotoPath = await SavePhotoFile(photo);
+                existing.PhotoPath = await SavePhotoFile(photo); // см. ниже
             }
 
-            // Если PhotoPath был Required — убираем старую ошибку валидации
+            // Если PhotoPath у тебя помечен [Required], удалить старую валидацию:
             ModelState.Remove(nameof(Plant.PhotoPath));
-            TryValidateModel(plant);
+            // Перепроверяем модель на валидность
+            TryValidateModel(existing);
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(plant);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PlantExists(plant.Id)) return NotFound();
-                    throw;
-                }
+                return View(existing); // возвращаем форму с ошибками
             }
 
-            return View(plant);
+            try
+            {
+                _context.Update(existing);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Plants.Any(e => e.Id == id)) return NotFound();
+                throw;
+            }
         }
 
         // GET: Plants/Delete/5
@@ -155,110 +182,20 @@ namespace PlantGuide.Controllers
 
         private bool PlantExists(int id) => _context.Plants.Any(e => e.Id == id);
 
-        // helper to save uploaded images to wwwroot/images and return relative path
+        // helper to save uploaded images to wwwroot/images and return path like "~/images/xxxx.jpg"
         private async Task<string> SavePhotoFile(IFormFile photo)
         {
             var uploads = Path.Combine(_env.WebRootPath ?? "wwwroot", "images");
             if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
 
-            // create unique file name
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
             var filePath = Path.Combine(uploads, fileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await photo.CopyToAsync(stream);
-            }
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await photo.CopyToAsync(stream);
 
-            // return relative path for use in <img src="...">
-            return Path.Combine("images", fileName).Replace("\\", "/");
+            // return path with tilde so Url.Content can resolve it
+            return $"~/images/{fileName}";
         }
     }
 }
-
-
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using PlantGuide.Data;
-//using PlantGuide.Models;
-
-//namespace PlantGuide.Controllers
-//{
-//    public class PlantsController : Controller
-//    {
-//        private readonly ApplicationDbContext _context;
-
-//        public PlantsController(ApplicationDbContext context)
-//        {
-//            _context = context;
-//        }
-
-//        public async Task<IActionResult> Index()
-//        {
-//            return View(await _context.Plants.ToListAsync());
-//        }
-
-//        public async Task<IActionResult> Details(int? id)
-//        {
-//            if (id == null) return NotFound();
-//            var plant = await _context.Plants.FirstOrDefaultAsync(p => p.Id == id);
-//            if (plant == null) return NotFound();
-//            return View(plant);
-//        }
-
-//        public IActionResult Create() => View();
-
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Create(Plant plant)
-//        {
-//            if (ModelState.IsValid)
-//            {
-//                _context.Add(plant);
-//                await _context.SaveChangesAsync();
-//                return RedirectToAction(nameof(Index));
-//            }
-//            return View(plant);
-//        }
-
-//        public async Task<IActionResult> Edit(int? id)
-//        {
-//            if (id == null) return NotFound();
-//            var plant = await _context.Plants.FindAsync(id);
-//            if (plant == null) return NotFound();
-//            return View(plant);
-//        }
-
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Edit(int id, Plant plant)
-//        {
-//            if (id != plant.Id) return NotFound();
-//            if (ModelState.IsValid)
-//            {
-//                _context.Update(plant);
-//                await _context.SaveChangesAsync();
-//                return RedirectToAction(nameof(Index));
-//            }
-//            return View(plant);
-//        }
-
-//        public async Task<IActionResult> Delete(int? id)
-//        {
-//            if (id == null) return NotFound();
-//            var plant = await _context.Plants.FirstOrDefaultAsync(p => p.Id == id);
-//            if (plant == null) return NotFound();
-//            return View(plant);
-//        }
-
-//        [HttpPost, ActionName("Delete")]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> DeleteConfirmed(int id)
-//        {
-//            var plant = await _context.Plants.FindAsync(id);
-//            _context.Plants.Remove(plant);
-//            await _context.SaveChangesAsync();
-//            return RedirectToAction(nameof(Index));
-//        }
-//    }
-//}

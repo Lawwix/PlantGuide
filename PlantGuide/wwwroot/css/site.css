@@ -1,47 +1,347 @@
 :root {
-    --accent: #8a56d0; /* сиреневый */
-    --muted: #6c757d;
+    --bg: #ffd6d6; /* светло-розовый фон секции */
+    --header: #e9a5a5; /* тЄмный розовый header */
+    --card: #fff;
+    --accent: #2f6b3b; /* зелЄный дл€ primary */
+    --accent-soft: #f0bebe; /* розовый кнопок */
+    --muted: #7b7b7b;
+    --radius-lg: 18px;
+    --radius-sm: 10px;
 }
 
-body {
-    background: #fbfbfe;
-    color: #222;
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #fff; 
 }
 
-a, .btn-primary {
-    color: #fff;
+/* header */
+.app-header {
+    background: var(--header);
+    padding: 22px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: inset 0 -1px rgba(0,0,0,0.03);
 }
 
-.btn-primary {
-    background-color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 2px 6px rgba(138,86,208,0.12);
+.app-title {
+    font-weight: 800;
+    font-size: 32px;
+    letter-spacing: 0.5px;
 }
 
-.btn-outline-primary {
-    color: var(--accent);
-    border-color: var(--accent);
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.12);
+    background: transparent;
+    font-size: 18px;
 }
 
-.plant-card {
-    border-radius: 10px;
-    overflow: hidden;
+/* page container */
+.container-page {
+    background: transparent; /* чтобы основной фон был виден */
+    padding: 34px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.card {
+/* search row */
+.controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 26px;
+}
+
+.search-input, .filter-input {
+    background: var(--card);
+    border-radius: 16px;
+    border: none;
+    padding: 14px 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    font-size: 15px;
+    flex: 1;
+}
+
+.controls .btn {
+    padding: 12px 20px;
     border-radius: 12px;
-}
-
-img {
-    display: block;
-    max-width: 100%;
-}
-
-.card-title {
+    border: 2px solid rgba(0,0,0,0.06);
+    background: var(--accent);
+    color: #fff;
     font-weight: 600;
 }
 
-.card-subtitle {
-    font-size: 0.9rem;
+    .controls .btn.secondary {
+        background: transparent;
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+/* Add button top-right */
+.add-btn {
+    background: var(--accent);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-weight: 700;
+    border: 3px solid #fff4;
+}
+
+/* карточки */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+    margin-top: 18px;
+}
+
+.card-plant {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    box-shadow: 0 6px 20px rgba(15,15,15,0.03);
+    overflow: hidden;
+}
+
+    /* картинка слева */
+    .card-plant .thumb {
+        flex: 0 0 180px;
+        height: 190px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-plant img {
+        max-height: 170px;
+        max-width: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+        background: #fff;
+        padding: 8px;
+    }
+
+/* контент справа */
+.card-body {
+    flex: 1;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+}
+
+.card-sub {
+    font-style: italic;
     color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.card-desc {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.card-care {
+    color: var(--muted);
+    margin-bottom: 14px;
+}
+
+/*  нопки в карточке Ч компактнее и с переносом */ 
+.card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap; /* разрешаем перенос при узком месте */
+    margin-top: 12px;
+}
+/* компактный стиль кнопок */
+
+.btn-small {
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1;
+    min-width: 72px;
+    text-align: center;
+    border: none; /* убираем border по умолчанию */
+    box-shadow: none; /* убираем тЄмную обводку */
+}
+
+/* разные цвета */
+.btn-open {
+    background: var(--accent-dark, #2b7a3a);
+    color: #fff;
+}
+
+.btn-edit {
+    background: var(--accent-soft, #f6c9c9);
+    color: #fff;
+}
+
+.btn-delete {
+    background: #d05350;
+    color: #fff;
+    border: none; /* убираем чЄрную обводку */
+    box-shadow: none;
+}
+
+/* уменьшение кнопки на маленьких экранах */
+@media (max-width:600px) {
+    .btn-small {
+        padding: 7px 10px;
+        font-size: 13px;
+        min-width: 72px;
+    }
+}
+
+.btn-delete {
+    background: #d05350;
+    color: #fff;
+}
+/* detail page layout */
+.detail-row {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    margin-top: 12px;
+}
+
+.detail-photo {
+    width: 420px;
+    height: 520px;
+    background: #fff;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+}
+
+    .detail-photo img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+/* form styling (create/edit) */
+.form-control {
+    width: 100%;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    margin-bottom: 18px;
+    font-size: 15px;
+}
+
+.file-input {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.form-actions {
+    margin-top: 18px;
+    display: flex;
+    gap: 16px;
+}
+
+.btn-ghost {
+    background: #fff;
+    border-radius: 10px;
+    padding: 6px 12px;
+    border: 1px solid rgba(0,0,0,0.06);
+    color: var(--accent-dark, #2b7a3a);
+}
+
+/* responsive */
+@media (max-width:900px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    .detail-row {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+        padding: 20px 0;
+    }
+
+    .detail-photo img {
+        max-width: 420px;
+        width: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+    }
+
+    /* info column */
+    .detail-info {
+        flex: 1;
+    }
+
+    .card-plant {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .card-plant .thumb {
+            width: 100%;
+            height: auto;
+        }
+
+    /* ===== ƒетальна€ страница растени€ ===== */
+
+    .detail-container {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 40px;
+        padding: 20px 0;
+        flex-wrap: wrap; /* чтобы на маленьких экранах переносилось */
+    }
+
+    .detail-photo img {
+        max-width: 400px;
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        object-fit: contain;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .detail-info {
+        flex: 1;
+        min-width: 280px;
+    }
+
+    .detail-buttons {
+        margin-top: 30px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* убираем черную рамку у delete */
+    .btn-delete {
+        background: #d05350;
+        color: #fff;
+        border: none;
+        box-shadow: none;
+    }
+
+        /* при наведении легкое затемнение */
+        .btn-delete:hover {
+            background: #bb4946;
+        }
 }

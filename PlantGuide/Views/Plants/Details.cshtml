@@ -1,23 +1,36 @@
 ﻿@model PlantGuide.Models.Plant
+@{
+    ViewData["Title"] = "Информация о растении";
+}
 
-<div class="container py-4">
-    <div class="card mb-3">
-        <div class="row g-0">
-            <div class="col-md-5">
-                <img src="~/@Model.PhotoPath" class="img-fluid rounded-start" 
-                style="height:100%; object-fit:cover; width:100%;" alt="@Model.Name" />
-            </div>
-            <div class="col-md-7">
-                <div class="card-body">
-                    <h3 class="card-title">@Model.Name</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">@Model.ScientificName</h6>
-                    <p class="card-text">@Model.Description</p>
-                    <h6>Инструкции по уходу</h6>
-                    <p class="card-text">@Model.CareInstructions</p>
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Редактировать</a>
-                    <a asp-action="Index" class="btn btn-secondary ms-2">Назад</a>
-                </div>
-            </div>
+<h2 style="margin-bottom:25px;">Информация о растении</h2>
+
+<div class="detail-container">
+    <div class="detail-photo">
+        <img src="@Url.Content(Model.PhotoPath ?? "~/images/default.jpg")"
+             alt="@Model.Name" />
+    </div>
+
+    <div class="detail-info">
+        <h1>@Model.Name</h1>
+        <h4 style="font-style:italic;color:var(--muted);margin-top:6px;">
+            @Model.ScientificName
+        </h4>
+
+        <p style="font-weight:600;margin-top:18px;">@Model.Description</p>
+
+        <h5 style="margin-top:22px;color:var(--muted);">Уход</h5>
+        <p style="color:var(--muted);">@Model.CareInstructions</p>
+
+        <div class="detail-buttons">
+            <a class="btn-small btn-open"
+               href="@Url.Action("Edit", new { id = Model.Id })">
+                Редактировать
+            </a>
+            <a class="btn-small btn-ghost"
+               href="@Url.Action("Index")">
+                Назад
+            </a>
         </div>
     </div>
 </div>

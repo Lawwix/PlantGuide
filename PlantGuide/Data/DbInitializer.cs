@@ -11,11 +11,11 @@ public static class DbInitializer
             new Plant { Name = "Фикус", ScientificName = "Ficus elastica", 
                 Description = "Универсальное комнатное растение", 
                 CareInstructions = "Яркий рассеянный свет, умеренный полив",
-                PhotoPath = "images/ficus.jpeg"},
+                PhotoPath = "images/ficus.jpg"},
             new Plant { Name = "Сансевиерия", ScientificName = "Sansevieria trifasciata", 
                 Description = "Неприхотливое", 
                 CareInstructions = "Свет — от тени до яркого; редкий полив",
-                PhotoPath = "images/sanseveriya.jpeg"}
+                PhotoPath = "images\\sanseveriya.jpg"}
         };
 
         context.Plants.AddRange(plants);
